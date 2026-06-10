@@ -1,0 +1,129 @@
+code,label
+res.send('<div>' + req.query.name + '</div>'),0
+const SNAKE_case_Mixed = true,2
+const item = array[index] // index may be out of bounds,3
+response.data.items.forEach() // items may be undefined,3
+const value = obj.a.b.c // no null check,3
+for (let i = 0; i < arr.length; i++) { await db.query(arr[i]) },1
+"parseInt(input) // no radix, no NaN check",3
+if (true) doThing(),2
+promise.then(handleSuccess) // no rejection handler,3
+arr.map(x => x.toLowerCase()) // x may not be string,3
+moment().format() // called every render,1
+function process(data){return data;};,2
+export default function(){} // anonymous default,2
+const result = users.filter(u => u.active).filter(u => u.age > 18).filter(u => u.verified),1
+crypto.createHash('sha1').update(pwd),0
+"const a=1,b=2,c=3,d=4,e=5",2
+const x = 1 ;; const y = 2,2
+const num = Number(userInput) // NaN not handled,3
+SELECT * FROM orders // no LIMIT no index,1
+const x = condition ? a ? b : c : d ? e : f,2
+child_process.exec('ls ' + req.query.dir),0
+var   name    =    'john',2
+"fs.readFile(path, cb) // error arg ignored in cb",3
+const port = process.env.PORT // undefined fallback missing,3
+eval(req.body.expression),0
+"db.query('SELECT * FROM users WHERE name = ""' + name + '""')",0
+"const o = {'key': 'value', 'key2': 'value2'}",2
+"// TODO fix this later
+brokenCode()",2
+"router.get('/file', (req,res) => res.sendFile(req.query.path))",0
+let unused = 5 // never referenced,2
+"res.cookie('session', id)",0
+"const total = items.reduce((a,i) => a + expensiveCalc(i), 0)",1
+document.querySelectorAll('.item').forEach(reflow),1
+img.src = base64OfTenMegabyteImage,1
+let VeryLongVariableNameThatIsHardToRead = 1,2
+while (true) { checkStatus() },1
+"function f(a,b,c,d,e,f,g,h){}",2
+JSON.parse(JSON.stringify(deepObject)),1
+let x=1;let y=2;function add(){return x+y},2
+"array.map(x => x).filter(x => x).reduce((a,b) => a+b)",1
+context.value = newObjectEveryRender,1
+const map = {}; arr.forEach(x => map[x.id] = lookup(x)),1
+const result = data.map(function(x){return x.id}),2
+"app.get('/admin', (req, res) => { res.json(allUsers) })",0
+function foo( ) {return true},2
+"const data = {a:1,b:2,c:3}",2
+const decoded = jwt.decode(token),0
+const sorted = arr.sort(); const sorted2 = arr.sort(),1
+await db.connect() // no reconnection logic,3
+const parsed = JSON.parse(localStorage.getItem('x')),3
+"fs.writeFileSync(req.body.filename, data)",0
+const password = 'admin123',0
+ReactDOM.render(app) // inside setInterval,1
+const data = await fetchUser(id) // no try/catch,3
+"const sql = ""DELETE FROM logs WHERE id="" + req.params.id",0
+await Promise.resolve().then(() => heavySync()),1
+await fn() // unhandled if fn returns non-promise,3
+setState(x); setState(y); setState(z),1
+"localStorage.setItem('authToken', jwt)",0
+user.profile.avatar.url // deep access unguarded,3
+function doStuff() {} // unclear name,2
+let temp = getValue() // unclear purpose,2
+useEffect(() => { fetchData() }) // no dependency array,1
+list.indexOf(item) // repeated in tight loop,1
+const data = await fetch(url); const more = await fetch(url2),1
+element.innerHTML = userInput,0
+if (x == true) { },2
+const hash = md5(password),0
+const result = await Promise.all(million.map(fetchOne)),1
+const apiKey = 'sk-live-1234567890abcdef',0
+fs.readFileSync('/large/file.txt'),1
+for (const u of users) { const posts = await getPosts(u.id) },1
+const re = /complex.*regex/g; text.match(re) // in render,1
+"const token = jwt.sign(payload, 'secret123')",0
+const clone = _.cloneDeep(hugeState) // every keystroke,1
+"setTimeout(callback, delay) // never cleared",3
+await Promise.all(tasks) // one failure rejects all,3
+const total = a + b // a or b may be undefined,3
+"const result = divide(a, b) // no zero check",3
+mongoose.connect('mongodb://admin:password@host/db'),0
+"function calc(){
+
+
+
+return 1
+
+
+}",2
+const big = new Array(1000000).fill(computeExpensive()),1
+return cache.get(key).value // get may return null,3
+process.env.SECRET = 'hardcoded-secret-value',0
+const query = `SELECT * FROM users WHERE id = ${userId}`,0
+const date = new Date(userString) // invalid date risk,3
+process.exit(0) // in library code,3
+db.collection.find({}).toArray() // loads entire table,1
+function get(arr) { return arr[0].name },3
+"addEventListener('scroll', heavyHandler) // no debounce",1
+catch (e) {} // swallowed exception,3
+const deeply = { nested: { object: { value: 1 } } },2
+class foo {} // class should be PascalCase,2
+JSON.parse(response) // could throw on invalid json,3
+const cmd = `git clone ${userRepo}`; exec(cmd),0
+"const arr=[1,2,3,4,5,6,7,8,9,10,11,12,13,14]",2
+const config = require(dynamicPath) // may not exist,3
+var i; for(i=0;i<10;i++){},2
+if(x){y()}else{z()},2
+axios.get(`http://api/users/${req.query.id}`),0
+"bcrypt.compare(pwd, hash, () => {})",0
+throw 'string error' // throwing non-Error,3
+obj[key].push(val) // obj[key] may not be array,3
+"app.post('/login', (req, res) => { authenticate(req.body) })",0
+recursion(n) { return recursion(n-1) + recursion(n-2) },1
+return x === undefined ? undefined : x,2
+document.write(location.hash),0
+console.log('debug'); // left in production,2
+"stream.on('data', handler) // no error listener",3
+const a = b = c = 0,2
+"fetch(url, { headers: { Authorization: 'Bearer ' + token } })",0
+callback() // callback may be undefined,3
+if (user.role == 'admin') grantAccess(),0
+const regex = new RegExp(userInput),0
+items.forEach(async item => { await save(item) }),1
+const found = bigArray.find(x => x.id === id) // inside loop,1
+fetch(url).then(r => r.json()) // no .catch,3
+"localStorage.setItem('password', userPassword)",0
+app.use(cors({ origin: '*' })),0
+import * as everything from './utils',2
