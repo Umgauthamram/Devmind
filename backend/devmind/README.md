@@ -69,3 +69,48 @@ You can author your README using Visual Studio Code. Here are some useful editor
 * [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
 
 **Enjoy!**
+
+
+
+
+After this works, you have a complete, demoable v1: custom model + backend + extension with inline review and agent-prompt generation. That's the whole product from your proposal, running.
+The natural things after this, in order of value: add the Feature Planner mode you wanted (select files + describe a feature → get a prompt for what to build where), then package and publish to the marketplace. But first — get this panel working and show me the result. Replace the file, compile, reload, review.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Your bot is built and tested. Both demo runs above were live executions of the actual code — note the first one even triggered the ₹2,000 daily-loss kill switch and auto-flattened everything, which is exactly the behavior you want to see working before real money is involved.
+How the mode switch works: one line in config.yaml — mode: paper or mode: live. Paper mode simulates fills (with slippage) and can run on either a synthetic offline market or real Kite prices. Live mode places real orders through Zerodha Kite Connect and forces you to type LIVE to confirm before anything executes. Every safety control (daily loss kill switch, max trades/day, panic exit on API errors, Ctrl+C square-off) runs identically in both modes.
+To try it right now, no API keys needed:
+pip install -r requirements.txt
+python main.py --demo
+It ships with two strategies — a short straddle (per-leg 30% SL, 60% premium target, 3:00 PM time exit) and a momentum option buyer — both pluggable, so you can add your own rules by subclassing BaseStrategy.
+Three things you must do before going live, all detailed in the README: get a Kite Connect subscription and generate the daily access token; fix the option symbol mapping in build_symbol() to Zerodha's exact NFO tradingsymbols for the current expiry (left manual on purpose so it can't trade the wrong contract); and confirm Zerodha's current algo-order requirements under SEBI's framework, since API-routed retail algos now go through broker-registered controls.
+And the honest part, since I'm not a financial advisor: the bot gives you discipline and risk control, not edge. Run it in paper mode for at least a few weeks of real market data before putting even small capital behind it — short straddles in particular carry tail risk that can blow past stop losses on fast moves.
