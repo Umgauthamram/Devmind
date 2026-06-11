@@ -4,7 +4,7 @@
   "description": "AI code review and feature planning — scan files for flaws, get ready-to-paste agent prompts.",
   "version": "0.1.0",
   "publisher": "Gauthamram",
-  "icon": "media/icon.png",
+  "icon": "/media/icon.png",
   "repository": {
     "type": "git",
     "url": "https://github.com/umgauthamram/devmind"
@@ -106,6 +106,7 @@
     "test": "vscode-test"
   },
   "dependencies": {
+    "@vscode/vsce": "^3.9.2",
     "axios": "^1.17.0"
   },
   "devDependencies": {
