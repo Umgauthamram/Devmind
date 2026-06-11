@@ -3,11 +3,11 @@
   "displayName": "DevMind",
   "description": "AI code review and feature planning — scan files for flaws, get ready-to-paste agent prompts.",
   "version": "0.1.0",
-  "publisher": "YOUR_PUBLISHER_ID",
+  "publisher": "Gauthamram",
   "icon": "media/icon.png",
   "repository": {
     "type": "git",
-    "url": "https://github.com/YOUR_USERNAME/devmind"
+    "url": "https://github.com/umgauthamram/devmind"
   },
   "engines": {
     "vscode": "^1.96.0"
