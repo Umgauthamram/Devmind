@@ -1,23 +1,58 @@
 {
   "name": "devmind",
-  "displayName": "devmind",
-  "description": "ai-powered dev assistant",
-  "version": "0.0.1",
+  "displayName": "DevMind",
+  "description": "AI code review and feature planning — scan files for flaws, get ready-to-paste agent prompts.",
+  "version": "0.1.0",
+  "publisher": "YOUR_PUBLISHER_ID",
+  "icon": "media/icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YOUR_USERNAME/devmind"
+  },
   "engines": {
     "vscode": "^1.96.0"
   },
   "categories": [
+    "Linters",
+    "Machine Learning",
     "Other"
   ],
-  "activationEvents": [
-    "onCommand:devmind.reviewFile"
+  "keywords": [
+    "code review",
+    "ai",
+    "security",
+    "agent",
+    "prompt"
   ],
+  "activationEvents": [],
   "main": "./dist/extension.js",
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "devmind",
+          "title": "DevMind",
+          "icon": "media/devmind.svg"
+        }
+      ]
+    },
+    "views": {
+      "devmind": [
+        {
+          "type": "webview",
+          "id": "devmind.sidebar",
+          "name": "DevMind"
+        }
+      ]
+    },
     "commands": [
       {
         "command": "devmind.reviewFile",
         "title": "DevMind: Review this file"
+      },
+      {
+        "command": "devmind.openSidebar",
+        "title": "DevMind: Open panel"
       }
     ],
     "menus": {
@@ -28,6 +63,35 @@
           "when": "editorTextFocus"
         }
       ]
+    },
+    "configuration": {
+      "title": "DevMind",
+      "properties": {
+        "devmind.backendUrl": {
+          "type": "string",
+          "default": "http://localhost:3000",
+          "description": "Base URL of the DevMind backend (e.g. https://devmind-backend.vercel.app). No trailing slash needed."
+        },
+        "devmind.confidenceThreshold": {
+          "type": "number",
+          "default": 0.4,
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Minimum model confidence required to flag a chunk."
+        },
+        "devmind.chunkSize": {
+          "type": "number",
+          "default": 6,
+          "minimum": 2,
+          "maximum": 40,
+          "description": "Lines of code per chunk sent to the model."
+        },
+        "devmind.maxFilesPerReview": {
+          "type": "number",
+          "default": 25,
+          "description": "Safety cap on how many files one review run will send to the backend."
+        }
+      }
     }
   },
   "scripts": {
@@ -46,13 +110,13 @@
   },
   "devDependencies": {
     "@types/mocha": "^10.0.10",
-    "@types/node": "22.x",
-    "@types/vscode": "^1.96.0",
+    "@types/node": "^22.19.21",
+    "@types/vscode": "1.96",
     "@vscode/test-cli": "^0.0.12",
     "@vscode/test-electron": "^2.5.2",
     "eslint": "^9.39.3",
     "ts-loader": "^9.5.4",
-    "typescript": "^5.9.3",
+    "typescript": "5.9",
     "typescript-eslint": "^8.56.1",
     "webpack": "^5.105.3",
     "webpack-cli": "^6.0.1"

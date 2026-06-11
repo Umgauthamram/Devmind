@@ -1,6 +1,10 @@
+
+**Privacy: When you run a review, DevMind sends the selected source code to the DevMind backend and AI model server for analysis. Code is processed in memory and is not stored or logged. Don't use DevMind on code you're not allowed to share externally.**
+
 # devmind README
 
 This is the README for your extension "devmind". After writing up a brief description, we recommend including the following sections.
+
 
 ## Features
 
