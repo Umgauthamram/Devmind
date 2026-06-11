@@ -282,6 +282,10 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
   let reviewPromptText = '';
   let planPromptText = '';
 
+  // Holds the set of checked file paths across a Refresh so selections survive.
+  // null = "first load, default everything checked".
+  let pendingChecks = null;
+
   // ----- Tabs -----
   function setTab(name) {
     $('tab-review').classList.toggle('active', name === 'review');
@@ -332,7 +336,8 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
       row.className = 'file';
       const cb = document.createElement('input');
       cb.type = 'checkbox';
-      cb.checked = true;
+      // Restore prior selection on refresh; new/first-load files default to checked.
+      cb.checked = pendingChecks === null ? true : pendingChecks.has(f);
       cb.dataset.path = f;
       const name = document.createElement('span');
       name.textContent = f.split('/').pop();
@@ -343,13 +348,24 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     }
   }
 
+  function currentChecks() {
+    const set = new Set();
+    document.querySelectorAll('#tree input[data-path]:checked').forEach((c) => set.add(c.dataset.path));
+    return set;
+  }
+
   function selectedFiles() {
     return Array.from(document.querySelectorAll('#tree input[data-path]:checked')).map((c) => c.dataset.path);
   }
 
   $('selectAll').onclick = () => document.querySelectorAll('#tree input[type=checkbox]').forEach((c) => (c.checked = true));
   $('selectNone').onclick = () => document.querySelectorAll('#tree input[type=checkbox]').forEach((c) => (c.checked = false));
-  $('refresh').onclick = () => vscode.postMessage({ type: 'refreshFiles' });
+  $('refresh').onclick = () => {
+    // Capture current selection, show instant feedback, then ask for a fresh scan.
+    pendingChecks = currentChecks();
+    $('tree').innerHTML = '<span class="muted">Refreshing…</span>';
+    vscode.postMessage({ type: 'refreshFiles' });
+  };
 
   // ----- Review -----
   $('runReview').onclick = () => {
@@ -461,8 +477,13 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
       case 'files': {
         const tree = $('tree');
         tree.innerHTML = '';
-        if (!msg.files.length) { tree.innerHTML = '<span class="muted">No code files found in workspace.</span>'; break; }
+        if (!msg.files.length) {
+          tree.innerHTML = '<span class="muted">No code files found in workspace.</span>';
+          pendingChecks = null;
+          break;
+        }
         renderNode(buildTree(msg.files), tree);
+        pendingChecks = null; // consumed; next first-render defaults to all-checked again
         break;
       }
       case 'busy': {
