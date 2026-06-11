@@ -147,7 +147,9 @@ export async function classifyChunks(
     } catch (err: any) {
       // Axios wraps connection failures in an AggregateError; surface the real cause.
       const status = err?.response?.status;
-      const serverMsg = err?.response?.data?.error;
+      const serverMsg =
+        err?.response?.data?.error ||
+        (err?.response?.data ? JSON.stringify(err.response.data).slice(0, 300) : '');
       const code = err?.code || err?.cause?.code;
       const aborted = err?.name === 'CanceledError' || err?.code === 'ERR_CANCELED';
       let detail: string;

@@ -2,7 +2,7 @@
   "name": "AI-devmind",
   "displayName": "AI DevMind",
   "description": "AI code review and feature planning — scan files for flaws, get ready-to-paste agent prompts.",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "publisher": "Gauthamram",
   "icon": "media/devmind.png",
   "repository": {
