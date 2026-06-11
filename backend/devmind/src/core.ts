@@ -29,10 +29,12 @@ export interface PlanCandidate {
 
 // ---------- Config ----------
 
+const DEFAULT_BACKEND = 'https://devmind-backend-new.vercel.app';
+
 export function getConfig() {
   const cfg = vscode.workspace.getConfiguration('devmind');
   return {
-    backendUrl: (cfg.get<string>('backendUrl') || 'http://localhost:3000').replace(/\/+$/, ''),
+    backendUrl: (cfg.get<string>('backendUrl') || DEFAULT_BACKEND).replace(/\/+$/, ''),
     threshold: cfg.get<number>('confidenceThreshold') ?? 0.4,
     chunkSize: cfg.get<number>('chunkSize') ?? 6,
     maxFiles: cfg.get<number>('maxFilesPerReview') ?? 25,
@@ -59,9 +61,9 @@ export const FIX_HINTS: Record<string, string> = {
 };
 
 const CODE_GLOB =
-  '**/*.{js,jsx,ts,tsx,mjs,cjs,py,java,go,rb,php,cs,c,h,cpp,hpp,rs,kt,swift,scala,sql,sh,vue,svelte}';
+  '**/*.{js,jsx,ts,tsx,mjs,cjs,py,java,go,rb,php,cs,c,h,cpp,hpp,rs,kt,swift,scala,sql,sh,vue,svelte,sol}';
 const IGNORE_GLOB =
-  '**/{node_modules,dist,out,build,.next,.git,coverage,venv,.venv,__pycache__,target,vendor}/**';
+  '**/{node_modules,dist,out,build,.next,.git,coverage,venv,.venv,__pycache__,target,vendor,artifacts,cache,typechain-types}/**';
 const MAX_FILE_BYTES = 200 * 1024;
 
 // ---------- File scanning ----------
@@ -113,30 +115,56 @@ export function chunkText(text: string, chunkSize: number): Chunk[] {
 
 // ---------- Backend client ----------
 
-const BATCH_SIZE = 32;
+const BATCH_SIZE = 8;
+const REQUEST_TIMEOUT = 30000;
 
-export async function classifyChunks(chunks: Chunk[]): Promise<ChunkResult[]> {
+export async function classifyChunks(
+  chunks: Chunk[],
+  onProgress?: (done: number, total: number) => void
+): Promise<ChunkResult[]> {
   const { backendUrl } = getConfig();
   const out: ChunkResult[] = [];
   for (let i = 0; i < chunks.length; i += BATCH_SIZE) {
     const slice = chunks.slice(i, i + BATCH_SIZE);
-    const response = await axios.post<{ results: ChunkResult[] }>(
-      `${backendUrl}/api/review`,
-      { chunks: slice },
-      { timeout: 45000 }
-    );
-    out.push(...response.data.results);
+    try {
+      const response = await axios.post<{ results: ChunkResult[] }>(
+        `${backendUrl}/api/review`,
+        { chunks: slice },
+        { timeout: REQUEST_TIMEOUT }
+      );
+      out.push(...response.data.results);
+      onProgress?.(Math.min(i + BATCH_SIZE, chunks.length), chunks.length);
+    } catch (err: any) {
+      // Axios wraps connection failures in an AggregateError; surface the real cause.
+      const status = err?.response?.status;
+      const serverMsg = err?.response?.data?.error;
+      const code = err?.code || err?.cause?.code;
+      let detail: string;
+      if (status) {
+        detail = `backend returned ${status}${serverMsg ? ` — ${serverMsg}` : ''}`;
+      } else if (code === 'ECONNABORTED' || /timeout/i.test(err?.message || '')) {
+        detail = `request timed out after ${REQUEST_TIMEOUT / 1000}s — the model server may be slow or asleep.`;
+      } else if (code === 'ECONNREFUSED' || code === 'ENOTFOUND') {
+        detail = `cannot reach backend at ${backendUrl} (${code}). Check the devmind.backendUrl setting.`;
+      } else {
+        detail = err?.message || String(err);
+      }
+      throw new Error(`Review request failed: ${detail}`);
+    }
   }
   return out;
 }
 
-export async function reviewFile(relPath: string): Promise<FileReview | null> {
+export async function reviewFile(
+  relPath: string,
+  onProgress?: (done: number, total: number) => void
+): Promise<FileReview | null> {
   const { threshold, chunkSize } = getConfig();
   const text = await readWorkspaceFile(relPath);
   if (text === null) return null;
   const chunks = chunkText(text, chunkSize);
   if (chunks.length === 0) return { relPath, flagged: [] };
-  const results = await classifyChunks(chunks);
+  const results = await classifyChunks(chunks, onProgress);
   const flagged = results.filter((r) => r.score >= threshold);
   return { relPath, flagged };
 }
@@ -229,6 +257,7 @@ export function summarizeSource(text: string): { symbols: string[]; summary: str
     /def\s+([A-Za-z0-9_]+)\s*\(/g, // python
     /interface\s+([A-Za-z0-9_]+)/g,
     /type\s+([A-Za-z0-9_]+)\s*=/g,
+    /(?:contract|library)\s+([A-Za-z0-9_]+)/g, // solidity
   ];
   for (const re of patterns) {
     let m;

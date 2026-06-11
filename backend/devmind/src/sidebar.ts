@@ -106,8 +106,15 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     const reviews: FileReview[] = [];
     let done = 0;
     for (const relPath of files) {
-      this.post({ type: 'busy', on: true, label: `Reviewing ${++done}/${files.length}: ${relPath}` });
-      const review = await reviewFile(relPath);
+      done++;
+      this.post({ type: 'busy', on: true, label: `Reviewing ${done}/${files.length}: ${relPath}` });
+      const review = await reviewFile(relPath, (c, total) => {
+        this.post({
+          type: 'busy',
+          on: true,
+          label: `Reviewing ${done}/${files.length}: ${relPath} — chunk ${c}/${total}`,
+        });
+      });
       if (review) {
         applyDiagnostics(review);
         reviews.push(review);
