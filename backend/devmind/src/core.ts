@@ -126,11 +126,21 @@ export async function classifyChunks(
   const out: ChunkResult[] = [];
   for (let i = 0; i < chunks.length; i += BATCH_SIZE) {
     const slice = chunks.slice(i, i + BATCH_SIZE);
+    // Hard timeout via AbortController: axios's `timeout` is a response timeout
+    // and won't fire if the connection itself stalls (e.g. behind a proxy in the
+    // extension host). This aborts no matter where it's stuck.
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
     try {
       const response = await axios.post<{ results: ChunkResult[] }>(
         `${backendUrl}/api/review`,
         { chunks: slice },
-        { timeout: REQUEST_TIMEOUT }
+        {
+          timeout: REQUEST_TIMEOUT,
+          signal: controller.signal,
+          proxy: false, // connect directly; don't auto-detect a proxy that may hang
+          headers: { 'Content-Type': 'application/json' },
+        }
       );
       out.push(...response.data.results);
       onProgress?.(Math.min(i + BATCH_SIZE, chunks.length), chunks.length);
@@ -139,17 +149,20 @@ export async function classifyChunks(
       const status = err?.response?.status;
       const serverMsg = err?.response?.data?.error;
       const code = err?.code || err?.cause?.code;
+      const aborted = err?.name === 'CanceledError' || err?.code === 'ERR_CANCELED';
       let detail: string;
       if (status) {
         detail = `backend returned ${status}${serverMsg ? ` — ${serverMsg}` : ''}`;
-      } else if (code === 'ECONNABORTED' || /timeout/i.test(err?.message || '')) {
-        detail = `request timed out after ${REQUEST_TIMEOUT / 1000}s — the model server may be slow or asleep.`;
+      } else if (aborted || code === 'ECONNABORTED' || /timeout/i.test(err?.message || '')) {
+        detail = `request timed out after ${REQUEST_TIMEOUT / 1000}s talking to ${backendUrl} — the model/backend may be slow, or the request is being blocked (proxy/network).`;
       } else if (code === 'ECONNREFUSED' || code === 'ENOTFOUND') {
         detail = `cannot reach backend at ${backendUrl} (${code}). Check the devmind.backendUrl setting.`;
       } else {
-        detail = err?.message || String(err);
+        detail = `${err?.message || String(err)} (url: ${backendUrl})`;
       }
       throw new Error(`Review request failed: ${detail}`);
+    } finally {
+      clearTimeout(timer);
     }
   }
   return out;
