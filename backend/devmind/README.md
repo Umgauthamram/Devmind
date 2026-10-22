@@ -1,63 +1,61 @@
-# DevMind
+# DevMind (VS Code Extension)
 
-AI-powered code review and development assistant for Visual Studio Code.
+**AI-powered code review and feature planning copilot for Visual Studio Code.**
+
+DevMind helps developers proactively detect defects in their code and prepare structured development prompts for AI coding agents (Claude Code, Cursor, GitHub Copilot, ChatGPT).
+
+---
 
 ## Features
 
-### AI Code Review
-- Review selected code directly inside VS Code
-- Detect bugs, code smells, and security issues
-- Get actionable improvement suggestions
+### AI-Powered Code Review
+- **Workspace-wide or File-level Review:** Scan specific files or the entire workspace across 24+ programming languages.
+- **Granular Defect Classification:** Identifies and categorizes issues by:
+  - **Security:** Injections, missing validation, unsafe operations.
+  - **Reliability:** Unhandled exceptions, missing null checks, race conditions.
+  - **Performance:** N+1 calls, blocking loops, redundant operations.
+  - **Style:** Formatting issues and anti-patterns.
+- **Native VS Code Diagnostics:** Renders inline warnings and errors directly inside your code editor with confidence scores and recommended remediation hints.
+- **Interactive Sidebar Panel:** Displays grouped findings with one-click line jumps directly to the problem areas.
 
-### Agent Prompt Generator
-- Generate implementation prompts for AI coding agents
-- Convert selected code into structured development tasks
+### Feature Planning & Agent Prompt Synthesis
+- **Zero-Latency AST / Symbol Scanner:** Automatically extracts classes, functions, and interfaces across your workspace to identify candidate files for new features.
+- **Relevance Ranking:** Ranks files according to keyword relevance, path matching, and symbol references based on your natural language feature description.
+- **One-Click Prompt Generation:** Synthesizes structured, production-ready prompts detailing exact files and context for downstream AI coding agents.
 
-### Secure Processing
-- Selected source code is sent to the DevMind backend for analysis
-- Code is processed in memory and is not permanently stored
+### Secure & In-Memory Processing
+- Source code chunks are sent exclusively to your configured DevMind API gateway for model inference.
+- Processed in-memory with zero persistent logging or retention of code contents.
 
-## Usage
+---
 
-1. Select code in the editor
-2. Right-click
-3. Choose:
-   - DevMind: Review Code
-   - DevMind: Generate Agent Prompt
-4. View results in the DevMind panel
+## Installation & Development
 
-## Requirements
+1. Open this directory in VS Code:
+   ```bash
+   cd backend/devmind
+   npm install
+   npm run compile
+   ```
+2. Press **`F5`** to launch the Extension Development Host.
+3. Open the DevMind activity bar icon on the left to start using the extension.
 
-- Visual Studio Code 1.100+
-- Running DevMind backend server
-- Internet connection
+---
 
-## Configuration
+## Extension Configuration
 
-Configure the backend URL in extension settings:
+Configure DevMind via VS Code Settings (**Preferences $\rightarrow$ Settings $\rightarrow$ DevMind**):
 
 ```json
 {
-  "devmind.backendUrl": "http://localhost:5000"
+  "devmind.backendUrl": "https://devmind-backend-new.vercel.app",
+  "devmind.confidenceThreshold": 0.4,
+  "devmind.chunkSize": 6,
+  "devmind.maxFilesPerReview": 25
 }
 ```
 
-## Privacy
-
-When you run a review, DevMind sends the selected source code to the DevMind backend and AI model server for analysis.
-
-Code is processed in memory and is not stored or logged.
-
-Do not use DevMind on code you are not authorized to share externally.
-
-## Release Notes
-
-### 0.1.0
-
-- Initial release
-- AI code review
-- Agent prompt generation
-- DevMind webview panel
+---
 
 ## License
 
